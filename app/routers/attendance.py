@@ -168,10 +168,11 @@ def _attendance_html(user, unverified, today_records, category):
     <div class="content-area">
       <div class="attendance-grid">
         <div class="card">
-          <div class="card-header"><h3>Unverified Persons</h3>
-            <input type="text" id="verifySearch" placeholder="Search..." onkeyup="filterUnverified(this.value)">
+          <div class="card-header"><h3>Unverified Persons</h3><span class="badge badge-info">{len(unverified)} pending</span></div>
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+            <input type="text" id="verifySearch" class="attendance-search-input" placeholder="Search by name..." onkeyup="filterUnverified(this.value)">
           </div>
-          <div class="tabs" style="padding:0 1rem">{tabs}</div>
+          <div class="tabs" style="padding:8px 16px">{tabs}</div>
           <div id="unverifiedList" class="person-list">
             {unverified_cards or '<p class="empty-state">All persons have been verified today!</p>'}
           </div>
@@ -240,8 +241,8 @@ function filterUnverified(val) {{
   const cards = document.querySelectorAll('.person-card');
   const q = val.toLowerCase();
   cards.forEach(c => {{
-    const name = c.querySelector('strong').textContent.toLowerCase();
-    c.style.display = name.includes(q) ? '' : 'none';
+    const text = c.querySelector('.person-info').textContent.toLowerCase();
+    c.style.display = text.includes(q) ? '' : 'none';
   }});
 }}
 </script>

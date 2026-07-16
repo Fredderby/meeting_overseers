@@ -457,7 +457,25 @@ body {
 
 .attendance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 
-.person-list { padding: 12px 16px; max-height: 500px; overflow-y: auto; }
+.attendance-search-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+  background: var(--bg);
+  transition: all 0.3s;
+}
+.attendance-search-input:focus {
+  border-color: var(--primary);
+  background: var(--surface);
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+.attendance-search-input::placeholder { color: var(--text-secondary); }
+
+.person-list { padding: 12px 16px; max-height: 65vh; overflow-y: auto; }
 .person-card {
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px; border: 1px solid var(--border); border-radius: 10px;
