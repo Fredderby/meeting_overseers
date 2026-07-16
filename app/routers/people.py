@@ -165,11 +165,11 @@ def _sidebar_html(user, active="people"):
 </aside>
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {{
   var t=document.getElementById('sidebarToggle'),s=document.getElementById('sidebar'),b=document.getElementById('sidebarBackdrop');
-  if(t&&s){t.addEventListener('click',function(){s.classList.toggle('open');if(b)b.classList.toggle('show');});}
-  if(b){b.addEventListener('click',function(){s.classList.remove('open');b.classList.remove('show');});}
-});
+  if(t&&s){{t.addEventListener('click',function(){{s.classList.toggle('open');if(b)b.classList.toggle('show');}});}}
+  if(b){{b.addEventListener('click',function(){{s.classList.remove('open');b.classList.remove('show');}});}}
+}});
 </script>"""
 
 

@@ -148,7 +148,7 @@ function handleFile(input) {{
     .then(d => {{
       if(d.total_records === undefined) throw new Error('Invalid response');
       console.log('PREVIEW DATA:', JSON.stringify(d.preview, null, 2));
-      d.preview.forEach(function(r, i) { console.log('Row ' + i + ' gender:', JSON.stringify(r.gender), 'type:', typeof r.gender); });
+      d.preview.forEach(function(r, i) {{ console.log('Row ' + i + ' gender:', JSON.stringify(r.gender), 'type:', typeof r.gender); }});
       document.getElementById('debugJson').textContent = JSON.stringify(d.preview, null, 2);
       document.getElementById('debugPanel').style.display = 'block';
       uploadedFilepath = d.filepath;
