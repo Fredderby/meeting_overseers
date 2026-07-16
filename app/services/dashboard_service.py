@@ -80,54 +80,106 @@ def get_todays_attendance_by_category(db: Session) -> list:
     return [{"category": r[0] or "Uncategorized", "count": r[1]} for r in rows]
 
 
+def _normalize_designation(desig, category=None):
+    if not desig:
+        return "Other"
+    d = desig.lower().strip()
+
+    if "national" in d or "nat'l" in d:
+        return "National Officers"
+
+    cleaned = d
+    for prefix in ["former ag.", "former"]:
+        if cleaned.startswith(prefix):
+            cleaned = cleaned[len(prefix):].strip()
+            break
+    if cleaned.startswith("ag."):
+        cleaned = cleaned[3:].strip()
+
+    if "zonal" in cleaned and "overseer" in cleaned and "women" not in cleaned:
+        return "Zonal Coordinating Overseer"
+    if "zonal" in cleaned and "coordinat" in cleaned and "overseer" in cleaned:
+        return "Zonal Coordinating Overseer"
+    if "zonal" in cleaned and "women" in cleaned:
+        return "Zonal Women Coordinator"
+    if "zonal" in cleaned and "administrator" in cleaned:
+        return "Zonal Coordinating Overseer"
+    if "regional" in cleaned and "women" in cleaned:
+        return "Regional Women Coordinator"
+    if "regional" in cleaned and ("overseer" in cleaned or "administrator" in cleaned):
+        return "Regional Overseer"
+    if "divisional" in cleaned and "women" in cleaned:
+        return "Divisional Women Coordinator"
+    if "divisional" in cleaned and "pastor" in cleaned:
+        return "Divisional Pastor"
+    if "group" in cleaned and "women" in cleaned:
+        return "Divisional Women Coordinator"
+    if "group" in cleaned and "pastor" in cleaned:
+        return "Divisional Pastor"
+    if category and category.lower() == "women":
+        return "Sisters"
+
+    return "Other"
+
+
 def get_designation_analytics(db: Session) -> dict:
     total = db.query(func.count(Person.id)).filter(Person.is_active == True).scalar() or 0
     today = date.today()
     weekly_start = today - timedelta(days=today.weekday())
 
     gender_rows = db.query(
-        Person.designation, Person.gender, func.count(Person.id)
-    ).filter(Person.is_active == True).group_by(Person.designation, Person.gender).all()
+        Person.designation, Person.gender, Person.category, func.count(Person.id)
+    ).filter(Person.is_active == True).group_by(Person.designation, Person.gender, Person.category).all()
     gender_map = {}
-    for desig, gender, count in gender_rows:
-        key = desig or "Unspecified"
+    for desig, gender, category, count in gender_rows:
+        key = _normalize_designation(desig, category)
         if key not in gender_map:
             gender_map[key] = {}
-        gender_map[key][gender or "Unspecified"] = count
+        gender_map[key][gender or "Unspecified"] = gender_map[key].get(gender or "Unspecified", 0) + count
 
     cat_rows = db.query(
         Person.designation, Person.category, func.count(Person.id)
     ).filter(Person.is_active == True).group_by(Person.designation, Person.category).all()
     cat_map = {}
     for desig, cat, count in cat_rows:
-        key = desig or "Unspecified"
+        key = _normalize_designation(desig, cat)
         if key not in cat_map:
             cat_map[key] = {}
-        cat_map[key][cat or "Uncategorized"] = count
+        cat_map[key][cat or "Uncategorized"] = cat_map[key].get(cat or "Uncategorized", 0) + count
 
-    today_rows = db.query(
-        Person.designation, func.count(Attendance.id)
+    today_raw = db.query(
+        Person.designation, Person.category, func.count(Attendance.id)
     ).join(Person, Attendance.person_id == Person.id).filter(
         cast(Attendance.verification_date, Date) == today,
         Attendance.status == "Verified",
-    ).group_by(Person.designation).all()
-    today_map = {(r[0] or "Unspecified"): r[1] for r in today_rows}
+    ).group_by(Person.designation, Person.category).all()
+    today_map = {}
+    for desig, category, count in today_raw:
+        key = _normalize_designation(desig, category)
+        today_map[key] = today_map.get(key, 0) + count
 
-    week_rows = db.query(
-        Person.designation, func.count(Attendance.id)
+    week_raw = db.query(
+        Person.designation, Person.category, func.count(Attendance.id)
     ).join(Person, Attendance.person_id == Person.id).filter(
         cast(Attendance.verification_date, Date) >= weekly_start,
         Attendance.status == "Verified",
-    ).group_by(Person.designation).all()
-    week_map = {(r[0] or "Unspecified"): r[1] for r in week_rows}
+    ).group_by(Person.designation, Person.category).all()
+    week_map = {}
+    for desig, category, count in week_raw:
+        key = _normalize_designation(desig, category)
+        week_map[key] = week_map.get(key, 0) + count
 
-    desig_counts = db.query(
-        Person.designation, func.count(Person.id)
-    ).filter(Person.is_active == True).group_by(Person.designation).all()
+    count_rows = db.query(
+        Person.designation, Person.category, func.count(Person.id)
+    ).filter(Person.is_active == True).group_by(Person.designation, Person.category).all()
+
+    desig_totals = {}
+    for desig, category, count in count_rows:
+        key = _normalize_designation(desig, category)
+        desig_totals[key] = desig_totals.get(key, 0) + count
 
     designations = []
-    for desig, count in desig_counts:
-        desig_name = desig or "Unspecified"
+    for desig_name, count in desig_totals.items():
         gm = gender_map.get(desig_name, {})
         verified_today = today_map.get(desig_name, 0)
         verified_week = week_map.get(desig_name, 0)
@@ -161,7 +213,7 @@ def get_designation_analytics(db: Session) -> dict:
         })
 
     return {
-        "total_designations": len([d for d in designations if d["designation"] != "Unspecified"]),
+        "total_designations": len(designations),
         "total_people": total,
         "designations": designations,
         "chart_data": chart_data,
