@@ -1,5 +1,6 @@
 from datetime import datetime, date, timedelta
 from typing import Dict, Any
+import numpy as np
 from sqlalchemy.orm import Session
 from sqlalchemy import func, cast, Date
 
@@ -218,4 +219,142 @@ def get_designation_analytics(db: Session) -> dict:
         "designations": designations,
         "chart_data": chart_data,
         "gender_chart": gender_chart,
+    }
+
+
+def get_verified_breakdown(db: Session) -> dict:
+    today = date.today()
+    weekly_start = today - timedelta(days=today.weekday())
+
+    total_active = db.query(func.count(Person.id)).filter(Person.is_active == True).scalar() or 0
+    total_men = db.query(func.count(Person.id)).filter(Person.is_active == True, Person.category == "Men").scalar() or 0
+    total_women = db.query(func.count(Person.id)).filter(Person.is_active == True, Person.category == "Women").scalar() or 0
+    total_stakeholders = db.query(func.count(Person.id)).filter(Person.is_active == True, Person.category == "Stakeholders").scalar() or 0
+
+    today_by_gender = db.query(
+        Attendance.gender, func.count(Attendance.id)
+    ).filter(
+        cast(Attendance.verification_date, Date) == today,
+        Attendance.status == "Verified",
+    ).group_by(Attendance.gender).all()
+    today_gender = {r[0] or "Unspecified": r[1] for r in today_by_gender}
+
+    today_by_cat = db.query(
+        Attendance.category, func.count(Attendance.id)
+    ).filter(
+        cast(Attendance.verification_date, Date) == today,
+        Attendance.status == "Verified",
+    ).group_by(Attendance.category).all()
+    today_cat = {r[0] or "Uncategorized": r[1] for r in today_by_cat}
+
+    week_by_gender = db.query(
+        Attendance.gender, func.count(Attendance.id)
+    ).filter(
+        cast(Attendance.verification_date, Date) >= weekly_start,
+        Attendance.status == "Verified",
+    ).group_by(Attendance.gender).all()
+    week_gender = {r[0] or "Unspecified": r[1] for r in week_by_gender}
+
+    week_by_cat = db.query(
+        Attendance.category, func.count(Attendance.id)
+    ).filter(
+        cast(Attendance.verification_date, Date) >= weekly_start,
+        Attendance.status == "Verified",
+    ).group_by(Attendance.category).all()
+    week_cat = {r[0] or "Uncategorized": r[1] for r in week_by_cat}
+
+    today_men_verified = today_cat.get("Men", 0)
+    today_women_verified = today_cat.get("Women", 0)
+    today_total = sum(today_gender.values())
+
+    men_attendance_rate = round(today_men_verified / total_men * 100, 1) if total_men > 0 else 0
+    women_attendance_rate = round(today_women_verified / total_women * 100, 1) if total_women > 0 else 0
+    overall_attendance_rate = round(today_total / total_active * 100, 1) if total_active > 0 else 0
+
+    return {
+        "total_active": total_active,
+        "total_men": total_men,
+        "total_women": total_women,
+        "total_stakeholders": total_stakeholders,
+        "today_total": today_total,
+        "today_by_gender": today_gender,
+        "today_by_category": today_cat,
+        "week_by_gender": week_gender,
+        "week_by_category": week_cat,
+        "men_attendance_rate": men_attendance_rate,
+        "women_attendance_rate": women_attendance_rate,
+        "overall_attendance_rate": overall_attendance_rate,
+        "today_men_verified": today_men_verified,
+        "today_women_verified": today_women_verified,
+        "week_men_verified": week_cat.get("Men", 0),
+        "week_women_verified": week_cat.get("Women", 0),
+    }
+
+
+def get_statistics_summary(db: Session) -> dict:
+    today = date.today()
+    weekly_start = today - timedelta(days=today.weekday())
+
+    count_rows = db.query(
+        Person.designation, Person.category, func.count(Person.id)
+    ).filter(Person.is_active == True).group_by(Person.designation, Person.category).all()
+
+    desig_totals = {}
+    for desig, category, count in count_rows:
+        key = _normalize_designation(desig, category)
+        desig_totals[key] = desig_totals.get(key, 0) + count
+
+    today_raw = db.query(
+        Person.designation, Person.category, func.count(Attendance.id)
+    ).join(Person, Attendance.person_id == Person.id).filter(
+        cast(Attendance.verification_date, Date) == today,
+        Attendance.status == "Verified",
+    ).group_by(Person.designation, Person.category).all()
+    today_map = {}
+    for desig, category, count in today_raw:
+        key = _normalize_designation(desig, category)
+        today_map[key] = today_map.get(key, 0) + count
+
+    week_raw = db.query(
+        Person.designation, Person.category, func.count(Attendance.id)
+    ).join(Person, Attendance.person_id == Person.id).filter(
+        cast(Attendance.verification_date, Date) >= weekly_start,
+        Attendance.status == "Verified",
+    ).group_by(Person.designation, Person.category).all()
+    week_map = {}
+    for desig, category, count in week_raw:
+        key = _normalize_designation(desig, category)
+        week_map[key] = week_map.get(key, 0) + count
+
+    rates = []
+    for desig, total in desig_totals.items():
+        if total > 0:
+            rate = round(today_map.get(desig, 0) / total * 100, 1)
+            rates.append(rate)
+
+    rates_arr = np.array(rates) if rates else np.array([0.0])
+
+    day_counts = []
+    for i in range(6, -1, -1):
+        d = today - timedelta(days=i)
+        c = db.query(func.count(Attendance.id)).filter(
+            cast(Attendance.verification_date, Date) == d,
+            Attendance.status == "Verified",
+        ).scalar() or 0
+        day_counts.append(c)
+    day_arr = np.array(day_counts)
+
+    return {
+        "avg_attendance_rate": round(float(np.mean(rates_arr)), 1),
+        "median_attendance_rate": round(float(np.median(rates_arr)), 1),
+        "std_attendance_rate": round(float(np.std(rates_arr)), 1),
+        "min_attendance_rate": round(float(np.min(rates_arr)), 1),
+        "max_attendance_rate": round(float(np.max(rates_arr)), 1),
+        "designations_above_80": int(np.sum(rates_arr >= 80)),
+        "designations_below_50": int(np.sum(rates_arr < 50)),
+        "total_designations": len(desig_totals),
+        "daily_average": round(float(np.mean(day_arr)), 1),
+        "daily_std": round(float(np.std(day_arr)), 1),
+        "peak_day_count": int(np.max(day_arr)),
+        "total_verified_week": int(np.sum(day_arr)),
     }

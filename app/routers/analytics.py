@@ -6,6 +6,7 @@ from app.authentication.auth import get_current_user
 from app.services.dashboard_service import (
     get_category_distribution, get_gender_distribution,
     get_weekly_trend, get_dashboard_stats, get_designation_analytics,
+    get_verified_breakdown, get_statistics_summary,
 )
 from app.routers.people import _sidebar_html
 
@@ -60,6 +61,22 @@ async def designations_api(request: Request, db: Session = Depends(get_db)):
     return get_designation_analytics(db)
 
 
+@router.get("/api/analytics/verified-breakdown")
+async def verified_breakdown_api(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return get_verified_breakdown(db)
+
+
+@router.get("/api/analytics/statistics")
+async def statistics_api(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return get_statistics_summary(db)
+
+
 def _analytics_html(user):
     name = user.get("username", "User")
     return f"""<!DOCTYPE html>
@@ -96,9 +113,64 @@ def _analytics_html(user):
         <div class="stat-card stat-cyan"><div class="stat-icon"><svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg></div><div class="stat-info"><h3 id="desigCount">...</h3><p>Designations</p></div></div>
       </div>
 
+      <div id="verifiedBreakdownSection" class="stat-card" style="padding:20px;margin-bottom:16px">
+        <h3 style="margin:0 0 16px 0;font-size:16px">Attendance Breakdown</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+          <div id="vbOverall" style="text-align:center;padding:12px;background:var(--bg-secondary);border-radius:8px">
+            <div style="font-size:32px;font-weight:700;color:var(--accent)" id="vbOverallRate">--</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">Overall Attendance Rate</div>
+            <div style="font-size:11px;color:var(--text-muted)" id="vbOverallDetail"></div>
+          </div>
+          <div id="vbMen" style="text-align:center;padding:12px;background:var(--bg-secondary);border-radius:8px">
+            <div style="font-size:32px;font-weight:700;color:#3b82f6" id="vbMenRate">--</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">Men Attendance Rate</div>
+            <div style="font-size:11px;color:var(--text-muted)" id="vbMenDetail"></div>
+          </div>
+          <div id="vbWomen" style="text-align:center;padding:12px;background:var(--bg-secondary);border-radius:8px">
+            <div style="font-size:32px;font-weight:700;color:#ec4899" id="vbWomenRate">--</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">Women Attendance Rate</div>
+            <div style="font-size:11px;color:var(--text-muted)" id="vbWomenDetail"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="charts-grid">
-        <div class="card"><div class="card-header"><h3>Gender Distribution</h3></div><div class="card-body"><canvas id="genderChart"></canvas></div></div>
-        <div class="card"><div class="card-header"><h3>Category Distribution</h3></div><div class="card-body"><canvas id="categoryChart"></canvas></div></div>
+        <div class="card"><div class="card-header"><h3>Verified by Gender (Today)</h3></div><div class="card-body"><canvas id="genderChart"></canvas></div></div>
+        <div class="card"><div class="card-header"><h3>Verified by Category (Today)</h3></div><div class="card-body"><canvas id="categoryChart"></canvas></div></div>
+      </div>
+
+      <div id="statsSummarySection" class="stat-card" style="padding:20px;margin:16px 0">
+        <h3 style="margin:0 0 16px 0;font-size:16px">Statistical Summary</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+          <div style="padding:12px;background:var(--bg-secondary);border-radius:8px;text-align:center">
+            <div style="font-size:24px;font-weight:700;color:#3b82f6" id="statAvg">--</div>
+            <div style="font-size:11px;color:var(--text-secondary)">Avg Attendance Rate</div>
+          </div>
+          <div style="padding:12px;background:var(--bg-secondary);border-radius:8px;text-align:center">
+            <div style="font-size:24px;font-weight:700;color:#10b981" id="statMedian">--</div>
+            <div style="font-size:11px;color:var(--text-secondary)">Median Rate</div>
+          </div>
+          <div style="padding:12px;background:var(--bg-secondary);border-radius:8px;text-align:center">
+            <div style="font-size:24px;font-weight:700;color:#f59e0b" id="statStd">--</div>
+            <div style="font-size:11px;color:var(--text-secondary)">Std Deviation</div>
+          </div>
+          <div style="padding:12px;background:var(--bg-secondary);border-radius:8px;text-align:center">
+            <div style="font-size:24px;font-weight:700;color:#8b5cf6" id="statAbove80">--</div>
+            <div style="font-size:11px;color:var(--text-secondary)">Above 80% Rate</div>
+          </div>
+          <div style="padding:12px;background:var(--bg-secondary);border-radius:8px;text-align:center">
+            <div style="font-size:24px;font-weight:700;color:#ef4444" id="statBelow50">--</div>
+            <div style="font-size:11px;color:var(--text-secondary)">Below 50% Rate</div>
+          </div>
+          <div style="padding:12px;background:var(--bg-secondary);border-radius:8px;text-align:center">
+            <div style="font-size:24px;font-weight:700;color:#06b6d4" id="statDailyAvg">--</div>
+            <div style="font-size:11px;color:var(--text-secondary)">Daily Avg Verified</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts-grid" style="margin-top:16px">
+        <div class="card full-width"><div class="card-header"><h3>Weekly Attendance Trend</h3></div><div class="card-body"><canvas id="weeklyChart"></canvas></div></div>
       </div>
 
       <div class="designation-section" id="designationSection">
@@ -139,10 +211,6 @@ def _analytics_html(user):
         </div>
       </div>
 
-      <div class="charts-grid" style="margin-top:16px">
-        <div class="card full-width"><div class="card-header"><h3>Weekly Attendance Trend</h3></div><div class="card-body"><canvas id="weeklyChart"></canvas></div></div>
-      </div>
-
     </div>
   </main>
 </div>
@@ -156,43 +224,66 @@ async function loadData() {{
       <div class="stat-card stat-purple"><div class="stat-icon"><svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></div><div class="stat-info"><h3>${{overview.weekly_count}} <small style="font-size:12px;color:var(--text-secondary)">${{overview.weekly_percent}}%</small></h3><p>This Week</p></div></div>
       <div class="stat-card stat-cyan"><div class="stat-icon"><svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg></div><div class="stat-info"><h3 id="desigCount">...</h3><p>Designations</p></div></div>
     `;
-  }} catch(e) {{}}
+  }} catch(e) {{ console.error('overview', e); }}
 
-  async function makeChart(url, canvasId, type, labelKey, valueKey, label, colors, extraOpts) {{
-    try {{
-      const data = await fetch(url).then(r => r.json());
-      const ctx = document.getElementById(canvasId).getContext('2d');
-      const opts = {{
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {{ legend: {{ position: 'bottom', labels: {{ padding: 12, font: {{ size: 12 }} }} }} }},
-        scales: type !== 'pie' && type !== 'doughnut' ? {{ y: {{ beginAtZero: true, ticks: {{ stepSize: 1 }} }} }} : undefined,
-      }};
-      if (extraOpts) Object.assign(opts, extraOpts);
-      new Chart(ctx, {{
-        type: type,
-        data: {{
-          labels: data.map(d => d[labelKey]),
-          datasets: [{{
-            label: label,
-            data: data.map(d => d[valueKey]),
-            backgroundColor: colors || ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316','#14b8a6'],
-            borderWidth: 2,
-            borderColor: '#fff',
-          }}]
-        }},
-        options: opts
-      }});
-    }} catch(e) {{ console.error(canvasId, e); }}
-  }}
-  makeChart('/api/analytics/gender-distribution', 'genderChart', 'doughnut', 'gender', 'count', 'Gender', ['#3b82f6','#ec4899','#10b981']);
-  makeChart('/api/analytics/category-distribution', 'categoryChart', 'pie', 'category', 'count', 'Category', ['#3b82f6','#ec4899','#f59e0b']);
-  makeChart('/api/analytics/weekly-trend', 'weeklyChart', 'line', 'date', 'count', 'Attendance', ['#3b82f6']);
+  try {{
+    const vb = await fetch('/api/analytics/verified-breakdown').then(r => r.json());
+    document.getElementById('vbOverallRate').textContent = vb.overall_attendance_rate + '%';
+    document.getElementById('vbOverallDetail').textContent = vb.today_total + ' of ' + vb.total_active + ' verified';
+    document.getElementById('vbMenRate').textContent = vb.men_attendance_rate + '%';
+    document.getElementById('vbMenDetail').textContent = vb.today_men_verified + ' of ' + vb.total_men + ' verified';
+    document.getElementById('vbWomenRate').textContent = vb.women_attendance_rate + '%';
+    document.getElementById('vbWomenDetail').textContent = vb.today_women_verified + ' of ' + vb.total_women + ' verified';
+
+    const gCtx = document.getElementById('genderChart').getContext('2d');
+    const gLabels = Object.keys(vb.today_by_gender);
+    const gValues = Object.values(vb.today_by_gender);
+    const gColors = gLabels.map(l => l === 'Male' ? '#3b82f6' : l === 'Female' ? '#ec4899' : '#94a3b8');
+    new Chart(gCtx, {{
+      type: 'doughnut',
+      data: {{ labels: gLabels, datasets: [{{ data: gValues, backgroundColor: gColors, borderWidth: 2, borderColor: '#fff' }}] }},
+      options: {{ responsive: true, maintainAspectRatio: true, plugins: {{ legend: {{ position: 'bottom', labels: {{ padding: 12, font: {{ size: 12 }} }} }} }} }}
+    }});
+
+    const cCtx = document.getElementById('categoryChart').getContext('2d');
+    const cLabels = Object.keys(vb.today_by_category);
+    const cValues = Object.values(vb.today_by_category);
+    const cColors = ['#3b82f6','#ec4899','#f59e0b','#10b981'];
+    new Chart(cCtx, {{
+      type: 'pie',
+      data: {{ labels: cLabels, datasets: [{{ data: cValues, backgroundColor: cColors.slice(0, cLabels.length), borderWidth: 2, borderColor: '#fff' }}] }},
+      options: {{ responsive: true, maintainAspectRatio: true, plugins: {{ legend: {{ position: 'bottom', labels: {{ padding: 12, font: {{ size: 12 }} }} }} }} }}
+    }});
+  }} catch(e) {{ console.error('verified breakdown', e); }}
+
+  try {{
+    const st = await fetch('/api/analytics/statistics').then(r => r.json());
+    document.getElementById('statAvg').textContent = st.avg_attendance_rate + '%';
+    document.getElementById('statMedian').textContent = st.median_attendance_rate + '%';
+    document.getElementById('statStd').textContent = st.std_attendance_rate + '%';
+    document.getElementById('statAbove80').textContent = st.designations_above_80 + ' / ' + st.total_designations;
+    document.getElementById('statBelow50').textContent = st.designations_below_50 + ' / ' + st.total_designations;
+    document.getElementById('statDailyAvg').textContent = st.daily_average;
+  }} catch(e) {{ console.error('statistics', e); }}
+
+  try {{
+    const trendData = await fetch('/api/analytics/weekly-trend').then(r => r.json());
+    const ctx = document.getElementById('weeklyChart').getContext('2d');
+    new Chart(ctx, {{
+      type: 'line',
+      data: {{
+        labels: trendData.map(d => d.date),
+        datasets: [{{ label: 'Attendance', data: trendData.map(d => d.count), borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: true, tension: 0.3, borderWidth: 2, pointRadius: 4 }}]
+      }},
+      options: {{ responsive: true, maintainAspectRatio: true, plugins: {{ legend: {{ display: false }} }}, scales: {{ y: {{ beginAtZero: true, ticks: {{ stepSize: 1 }} }} }} }}
+    }});
+  }} catch(e) {{ console.error('weekly trend', e); }}
 
   try {{
     const desigData = await fetch('/api/analytics/designations').then(r => r.json());
     const d = desigData.designations || [];
-    document.getElementById('desigCount').textContent = desigData.total_designations;
+    const dc = document.getElementById('desigCount');
+    if (dc) dc.textContent = desigData.total_designations;
 
     const palette = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316','#14b8a6','#6366f1','#84cc16'];
 

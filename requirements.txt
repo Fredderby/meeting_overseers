@@ -18,3 +18,4 @@ pydantic-settings==2.7.0
 aiofiles==24.1.0
 httpx==0.28.1
 xlsxwriter==3.2.0
+numpy==1.26.4
