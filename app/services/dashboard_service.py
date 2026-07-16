@@ -78,3 +78,92 @@ def get_todays_attendance_by_category(db: Session) -> list:
         Attendance.status == "Verified",
     ).group_by(Attendance.category).all()
     return [{"category": r[0] or "Uncategorized", "count": r[1]} for r in rows]
+
+
+def get_designation_analytics(db: Session) -> dict:
+    total = db.query(func.count(Person.id)).filter(Person.is_active == True).scalar() or 0
+    today = date.today()
+    weekly_start = today - timedelta(days=today.weekday())
+
+    gender_rows = db.query(
+        Person.designation, Person.gender, func.count(Person.id)
+    ).filter(Person.is_active == True).group_by(Person.designation, Person.gender).all()
+    gender_map = {}
+    for desig, gender, count in gender_rows:
+        key = desig or "Unspecified"
+        if key not in gender_map:
+            gender_map[key] = {}
+        gender_map[key][gender or "Unspecified"] = count
+
+    cat_rows = db.query(
+        Person.designation, Person.category, func.count(Person.id)
+    ).filter(Person.is_active == True).group_by(Person.designation, Person.category).all()
+    cat_map = {}
+    for desig, cat, count in cat_rows:
+        key = desig or "Unspecified"
+        if key not in cat_map:
+            cat_map[key] = {}
+        cat_map[key][cat or "Uncategorized"] = count
+
+    today_rows = db.query(
+        Person.designation, func.count(Attendance.id)
+    ).join(Person, Attendance.person_id == Person.id).filter(
+        cast(Attendance.verification_date, Date) == today,
+        Attendance.status == "Verified",
+    ).group_by(Person.designation).all()
+    today_map = {(r[0] or "Unspecified"): r[1] for r in today_rows}
+
+    week_rows = db.query(
+        Person.designation, func.count(Attendance.id)
+    ).join(Person, Attendance.person_id == Person.id).filter(
+        cast(Attendance.verification_date, Date) >= weekly_start,
+        Attendance.status == "Verified",
+    ).group_by(Person.designation).all()
+    week_map = {(r[0] or "Unspecified"): r[1] for r in week_rows}
+
+    desig_counts = db.query(
+        Person.designation, func.count(Person.id)
+    ).filter(Person.is_active == True).group_by(Person.designation).all()
+
+    designations = []
+    for desig, count in desig_counts:
+        desig_name = desig or "Unspecified"
+        gm = gender_map.get(desig_name, {})
+        verified_today = today_map.get(desig_name, 0)
+        verified_week = week_map.get(desig_name, 0)
+        pct = round(count / total * 100, 1) if total > 0 else 0
+        att_rate = round(verified_today / count * 100, 1) if count > 0 else 0
+
+        designations.append({
+            "designation": desig_name,
+            "total": count,
+            "percentage": pct,
+            "gender": gm,
+            "category": cat_map.get(desig_name, {}),
+            "verified_today": verified_today,
+            "verified_week": verified_week,
+            "attendance_rate": att_rate,
+        })
+
+    designations.sort(key=lambda x: x["total"], reverse=True)
+
+    chart_data = [{"designation": d["designation"], "count": d["total"]} for d in designations]
+    gender_chart = []
+    for d in designations:
+        male = d["gender"].get("Male", 0)
+        female = d["gender"].get("Female", 0)
+        other = sum(v for k, v in d["gender"].items() if k not in ("Male", "Female"))
+        gender_chart.append({
+            "designation": d["designation"],
+            "male": male,
+            "female": female,
+            "other": other,
+        })
+
+    return {
+        "total_designations": len([d for d in designations if d["designation"] != "Unspecified"]),
+        "total_people": total,
+        "designations": designations,
+        "chart_data": chart_data,
+        "gender_chart": gender_chart,
+    }
