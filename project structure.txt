@@ -1,0 +1,472 @@
+# PROJECT: ATTENDANCE VERIFICATION SYSTEM
+
+## ROLE
+
+Act as a Senior Full Stack Software Engineer with expertise in:
+
+- Python 3.13+
+- FastAPI
+- SQLAlchemy 2.0
+- PostgreSQL
+- Alembic
+- Jinja2
+- HTML5
+- Advanced CSS3
+- Vanilla JavaScript (ES6+)
+- HTMX (optional where beneficial)
+- DataTables
+- Chart.js
+- OpenPyXL
+- Pandas
+- Authentication & Authorization
+- Responsive UI/UX Design
+- REST API Architecture
+
+Develop a production-ready Attendance Verification System with clean architecture, reusable components, maintainable code, and professional UI/UX.
+
+Do not generate placeholder code. Every module should be production quality.
+
+---------------------------------------------------------
+PROJECT STRUCTURE
+---------------------------------------------------------
+
+attendance-verification-system/
+
+│
+├── app/
+│   ├── main.py
+│   ├── config.py
+│   ├── database.py
+│   ├── models/
+│   ├── routers/
+│   ├── services/
+│   ├── schemas/
+│   ├── templates/
+│   ├── static/
+│   │      ├── css
+│   │      ├── js
+│   │      ├── images
+│   │      └── icons
+│   ├── authentication/
+│   ├── utilities/
+│   └── middleware/
+│
+├── uploads/
+├── exports/
+├── migrations/
+├── requirements.txt
+├── .env
+├── .gitignore
+└── README.md
+
+---------------------------------------------------------
+DATABASE
+---------------------------------------------------------
+
+Use MySQL.
+Database connection MUST come from .env.
+Example:
+
+DATABASE_URL=postgresql+psycopg://username:password@localhost/attendance_db
+
+Never hardcode credentials.
+
+---------------------------------------------------------
+AUTHENTICATION
+---------------------------------------------------------
+
+Develop a beautiful premium login page.
+
+Features:
+
+• Glassmorphism login card
+• Carved appearance
+• Soft shadows
+• Floating particles
+• Animated background
+• Animated logo
+• Smooth transitions
+• Password visibility toggle
+• Remember Me
+• Forgot Password
+• Secure session authentication
+• Logout
+• CSRF protection
+• Password hashing using bcrypt
+• Role-based authentication
+
+Roles:
+
+Administrator
+
+Only administrators can:
+
+- upload data
+- edit records
+- delete records
+- create users
+- manage attendance
+- manage stakeholders
+
+---------------------------------------------------------
+UI DESIGN
+---------------------------------------------------------
+
+Design must feel premium.
+
+Requirements:
+
+• Responsive
+• Modern
+• Professional
+• Minimal
+• Smooth animations
+• Card based
+• Rounded corners
+• Soft shadows
+• Beautiful gradients
+• Loading animations
+• Skeleton loaders
+• Elegant modals
+• Responsive sidebar
+• Sticky navbar
+• Dashboard widgets
+• Notification system
+• Toast messages
+• Confirmation dialogs
+
+Avoid Bootstrap defaults.
+
+Create a custom professional interface.
+
+---------------------------------------------------------
+DATASET
+---------------------------------------------------------
+
+The uploaded dataset contains these columns:
+1. Name of Overseer
+2. Designation
+3. Phone Number
+4. Region/Division
+
+These columns become the master schema.
+
+All uploaded files MUST follow this structure.
+
+---------------------------------------------------------
+DATABASE TABLES
+---------------------------------------------------------
+
+Users
+Attendance
+Overseers
+Women Cordinators
+Stakeholders
+Audit Logs
+
+---------------------------------------------------------
+PEOPLE MANAGEMENT
+---------------------------------------------------------
+
+The system must manage three independent categories.
+1. Men (Overseers and Pastors)
+2. Women (Women Cordinators and Sisters)
+3. Other Stakeholders (they occupy non-pastoral role)
+
+Each category uses the same column structure.
+Name
+Designation
+Phone Number
+Region/Division
+Additional fields:
+
+ID
+Verification Status
+Verification Date
+Created Date
+Updated Date
+Remarks
+
+---------------------------------------------------------
+UPLOAD MODULE
+---------------------------------------------------------
+Administrator can upload Excel files.
+Supported formats:
+.xlsx
+.xls
+
+Before importing:
+Validate columns.
+Reject invalid files.
+Show preview.
+Show duplicate records.
+Allow overwrite.
+Allow ignore duplicates.
+Import progress indicator.
+Success summary.
+Error report.
+
+---------------------------------------------------------
+MANAGE RECORDS
+---------------------------------------------------------
+Administrator can:
+Add person
+Edit person
+Delete person
+Deactivate person
+Search person
+Bulk delete
+Bulk update
+Export records
+
+---------------------------------------------------------
+ATTENDANCE VERIFICATION
+---------------------------------------------------------
+Attendance module should verify attendance.
+Verification methods:
+Search then Verify
+Future ready for:
+ID Number
+Manual verification
+Verification captures:
+
+Person
+Time
+Date
+Verified By
+Category
+Remarks
+Duplicate verification should be prevented unless administrator overrides.
+
+---------------------------------------------------------
+ADVANCED SEARCH ENGINE
+---------------------------------------------------------
+
+Build a high-speed search engine.
+Search by:
+Name
+Designation
+Region/Division
+Phone Number
+Category
+Verification Status
+Partial search
+Contains
+Starts with
+Multi-filter
+Instant search
+Autocomplete
+Highlighted matches
+Pagination
+Sorting
+
+---------------------------------------------------------
+DASHBOARD
+---------------------------------------------------------
+Dashboard should contain beautiful statistic cards.
+Overall totals.
+Total People
+Total Men
+Total Women
+Total Stakeholders
+Verified Today
+Verified Overall
+Pending Verification
+Male Verified
+Female Verified
+Stakeholders Verified
+
+---------------------------------------------------------
+ANALYTICS
+---------------------------------------------------------
+
+Display beautiful charts.
+Chart.js
+Pie charts
+Bar charts
+Line charts
+Donut charts
+
+Show:
+Verification trends
+Category breakdown
+Designation breakdown
+Region breakdown
+Daily attendance
+
+
+
+---------------------------------------------------------
+BREAKDOWNS
+---------------------------------------------------------
+
+Dashboard should automatically calculate:
+Total People
+People by Designation
+People by Region
+People by Category
+Verified by Region
+Verified by Designation
+Verified by Category
+Pending by Region
+Pending by Category
+
+---------------------------------------------------------
+TABLES
+---------------------------------------------------------
+
+Professional data tables.
+Features:
+Pagination
+Column sorting
+Instant search
+Column filters
+Responsive
+Export to:
+Excel
+CSV
+PDF
+Print
+
+---------------------------------------------------------
+PROFILE MANAGEMENT
+---------------------------------------------------------
+Administrator profile.
+Change password.
+Update profile.
+Upload profile picture.
+
+---------------------------------------------------------
+AUDIT LOGS
+---------------------------------------------------------
+Record every activity.
+Login
+Logout
+Upload
+Delete
+Update
+Verification
+Export
+User creation
+
+---------------------------------------------------------
+NOTIFICATIONS
+---------------------------------------------------------
+Toast notifications.
+Success
+Warning
+Information
+Error
+
+---------------------------------------------------------
+SECURITY
+---------------------------------------------------------
+Password hashing
+Parameterized queries
+ORM only
+Input validation
+Rate limiting
+CSRF protection
+Session timeout
+Secure cookies
+SQL Injection prevention
+XSS prevention
+
+---------------------------------------------------------
+EXPORTS
+---------------------------------------------------------
+
+Export attendance.
+Export filtered results.
+Export dashboard summaries.
+Export category reports.
+Export designation reports.
+
+---------------------------------------------------------
+PERFORMANCE
+---------------------------------------------------------
+Lazy loading
+Server-side pagination
+Efficient SQL queries
+Indexed columns
+Minimal API requests
+
+---------------------------------------------------------
+API DESIGN
+---------------------------------------------------------
+
+RESTful architecture.
+Separate routers.
+Separate services.
+Separate schemas.
+Separate models.
+No business logic inside routes.
+
+---------------------------------------------------------
+CODING STANDARDS
+---------------------------------------------------------
+
+Type hints
+Pydantic validation
+Reusable components
+DRY principles
+SOLID principles
+Clean architecture
+Well documented code
+
+---------------------------------------------------------
+REQUIREMENTS.TXT
+---------------------------------------------------------
+
+fastapi
+uvicorn[standard]
+MySQL
+psycopg[binary]
+alembic
+jinja2
+python-dotenv
+python-multipart
+passlib[bcrypt]
+bcrypt
+itsdangerous
+openpyxl
+pandas
+email-validator
+pydantic
+pydantic-settings
+aiofiles
+httpx
+orjson
+xlsxwriter
+
+---------------------------------------------------------
+ENV --i have provided the credentials for .env for MySQL, check and use it.
+---------------------------------------------------------
+DATABASE_URL=
+SECRET_KEY=
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+UPLOAD_FOLDER=uploads
+
+EXPORT_FOLDER=exports
+
+APP_NAME=Attendance Verification System
+DEBUG=True
+
+---------------------------------------------------------
+FINAL REQUIREMENTS
+---------------------------------------------------------
+
+Generate the application module-by-module in production quality.
+
+Do not skip any functionality.
+
+Do not use placeholder implementations.
+
+Maintain a clean folder structure.
+
+Keep frontend and backend fully separated.
+
+Every page should be responsive and visually polished.
+
+The application should be scalable to support tens of thousands of records while maintaining fast search and attendance verification performance.
