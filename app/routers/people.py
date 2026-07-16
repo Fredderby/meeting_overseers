@@ -143,6 +143,11 @@ async def remove_person(request: Request, person_id: int, db: Session = Depends(
 
 def _sidebar_html(user, active="people"):
     name = user.get("username", "User")
+    is_admin = user.get("role") == "Administrator"
+    admin_nav = ""
+    if is_admin:
+        admin_nav = f"""
+    <a href="/settings" class="nav-item {'active' if active=='settings' else ''}"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg><span>Settings</span></a>"""
     return f"""
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
@@ -157,6 +162,7 @@ def _sidebar_html(user, active="people"):
     <div class="nav-divider"></div>
     <a href="/upload" class="nav-item {'active' if active=='upload' else ''}"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg><span>Upload Data</span></a>
     <a href="/audit-logs" class="nav-item {'active' if active=='audit' else ''}"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg><span>Audit Logs</span></a>
+    {admin_nav}
   </nav>
   <div class="sidebar-footer">
     <a href="/profile" class="nav-item"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>Profile</span></a>
@@ -165,10 +171,13 @@ def _sidebar_html(user, active="people"):
 </aside>
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <script>
+function toggleSidebar() {{
+  var s=document.getElementById('sidebar'),b=document.getElementById('sidebarBackdrop');
+  if(s){{s.classList.toggle('open');if(b)b.classList.toggle('show');}}
+}}
 document.addEventListener('DOMContentLoaded', function() {{
-  var t=document.getElementById('sidebarToggle'),s=document.getElementById('sidebar'),b=document.getElementById('sidebarBackdrop');
-  if(t&&s){{t.addEventListener('click',function(){{s.classList.toggle('open');if(b)b.classList.toggle('show');}});}}
-  if(b){{b.addEventListener('click',function(){{s.classList.remove('open');b.classList.remove('show');}});}}
+  var b=document.getElementById('sidebarBackdrop');
+  if(b){{b.addEventListener('click',function(){{var s=document.getElementById('sidebar');if(s)s.classList.remove('open');b.classList.remove('show');}});}}
 }});
 </script>"""
 
@@ -228,7 +237,12 @@ def _people_html(user, persons, total, page, total_pages, category, search):
   {_sidebar_html(user, 'people')}
   <main class="main-content">
     <header class="topbar">
-      <div class="topbar-left"><h2>People Management</h2></div>
+      <div class="topbar-left">
+        <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()">
+          <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        </button>
+        <h2>People Management</h2>
+      </div>
       <div class="topbar-right">
         <div class="search-box">
           <input type="text" id="searchInput" placeholder="Search..." value="{search or ''}" onkeyup="if(event.key==='Enter')searchPeople()">

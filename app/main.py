@@ -16,7 +16,7 @@ from app.authentication.auth import hash_password
 from app.middleware.middleware import AppMiddleware
 from app.routers import (
     auth, dash_router, people, attendance, upload_router,
-    export_router, profile, audit, search, analytics,
+    export_router, profile, audit, search, analytics, settings as settings_router,
 )
 
 
@@ -79,6 +79,7 @@ app.include_router(profile.router)
 app.include_router(audit.router)
 app.include_router(search.router)
 app.include_router(analytics.router)
+app.include_router(settings_router.router)
 
 
 @app.get("/")

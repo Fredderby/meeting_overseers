@@ -105,7 +105,12 @@ def _audit_html(user, logs, total, page, total_pages, action_filter, entity_filt
   {_sidebar_html(user, 'audit')}
   <main class="main-content">
     <header class="topbar">
-      <div class="topbar-left"><h2>Audit Logs</h2></div>
+      <div class="topbar-left">
+        <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()">
+          <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        </button>
+        <h2>Audit Logs</h2>
+      </div>
       <div class="topbar-right">
         <div class="user-badge"><span class="user-avatar">{name[0].upper()}</span><span class="user-name">{name}</span></div>
       </div>

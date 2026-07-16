@@ -952,6 +952,20 @@ body {
 }
 .sidebar-backdrop.show { display: block; }
 
+/* Hamburger button - hidden on desktop, visible on mobile */
+.hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+}
+.hamburger-btn:hover { background: var(--bg); }
+
 /* Mobile improvements */
 @media (max-width: 1024px) {
   .charts-grid { grid-template-columns: 1fr; }
@@ -969,7 +983,10 @@ body {
   .sidebar.open { transform: translateX(0); }
   .main-content { margin-left: 0; }
   .topbar { padding: 10px 12px; flex-wrap: wrap; gap: 6px; }
+  .topbar-left { display: flex; align-items: center; gap: 8px; }
   .topbar-left h2 { font-size: 16px; }
+  .hamburger-btn { display: flex; }
+  .sidebar-toggle { display: none; }
   .content-area { padding: 12px; }
   .topbar-right { width: 100%; display: flex; gap: 8px; }
   .search-box { flex: 1; min-width: 0; }
