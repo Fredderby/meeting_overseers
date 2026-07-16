@@ -1008,10 +1008,74 @@ body {
   .content-area { padding: 12px; }
   .topbar-right { width: 100%; display: flex; gap: 8px; }
   .search-box { flex: 1; min-width: 0; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .stats-grid .stat-card { padding: 12px; }
-  .stats-grid .stat-card h3 { font-size: 22px !important; }
-  .stat-card .stat-icon { width: 32px; height: 32px; margin-bottom: 8px; }
+
+  /* Dashboard stats - professional mobile layout */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .stats-grid .stat-card {
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border-radius: 14px;
+  }
+  .stats-grid .stat-card .stat-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+  .stats-grid .stat-card .stat-icon svg { width: 20px; height: 20px; }
+  .stats-grid .stat-card h3 {
+    font-size: 24px !important;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 2px;
+  }
+  .stats-grid .stat-card p {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  /* Secondary stats - compact horizontal strip */
+  .stats-grid.secondary {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .stats-grid.secondary .stat-card {
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border-radius: 12px;
+  }
+  .stats-grid.secondary .stat-card .stat-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+  }
+  .stats-grid.secondary .stat-card .stat-icon svg { width: 16px; height: 16px; }
+  .stats-grid.secondary .stat-card h3 {
+    font-size: 18px !important;
+    font-weight: 700;
+    margin-bottom: 1px;
+  }
+  .stats-grid.secondary .stat-card p {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
   .attendance-grid { grid-template-columns: 1fr; gap: 12px; }
   .form-grid { grid-template-columns: 1fr; }
   .data-table { font-size: 13px; }
@@ -1031,19 +1095,42 @@ body {
   .btn-sm { min-height: 34px; padding: 6px 12px; font-size: 12px; }
   .user-name { display: none; }
   .topbar { flex-wrap: wrap; }
-  .stat-card { padding: 14px; }
   .card-footer-info { font-size: 12px; }
   .filter-group { flex-wrap: wrap; }
   .charts-grid .card canvas { max-height: 200px; }
+
+  /* Stat card mobile color accents */
+  .stats-grid .stat-card.stat-blue { border-top: 3px solid #3b82f6; }
+  .stats-grid .stat-card.stat-green { border-top: 3px solid #10b981; }
+  .stats-grid .stat-card.stat-red { border-top: 3px solid #ef4444; }
+  .stats-grid .stat-card.stat-purple { border-top: 3px solid #8b5cf6; }
+  .stats-grid.secondary .stat-card.stat-cyan { border-top: 3px solid #06b6d4; }
+  .stats-grid.secondary .stat-card.stat-pink { border-top: 3px solid #ec4899; }
+  .stats-grid.secondary .stat-card.stat-orange { border-top: 3px solid #f59e0b; }
 }
 
 @media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr; }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .stats-grid .stat-card { padding: 12px 8px; }
+  .stats-grid .stat-card h3 { font-size: 20px !important; }
+  .stats-grid .stat-card .stat-icon { width: 32px; height: 32px; }
+  .stats-grid .stat-card p { font-size: 10px; }
+
+  .stats-grid.secondary {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .stats-grid.secondary .stat-card { padding: 10px 6px; }
+  .stats-grid.secondary .stat-card h3 { font-size: 16px !important; }
+  .stats-grid.secondary .stat-card .stat-icon { width: 24px; height: 24px; }
+  .stats-grid.secondary .stat-card p { font-size: 9px; }
+
   .topbar-right .search-box { display: flex; }
   .content-area { padding: 8px; }
   .topbar-left h2 { font-size: 14px; }
-  .stats-grid .stat-card { padding: 10px; }
-  .stats-grid .stat-card h3 { font-size: 20px !important; }
   .data-table { font-size: 12px; }
   .data-table th, .data-table td { padding: 6px 8px; }
   .modal-content { padding: 16px; }
