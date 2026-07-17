@@ -1268,17 +1268,19 @@ body {
   .vb-card { padding: 14px 16px; border-radius: 10px; }
   .vb-total { font-size: 26px; }
   .vb-label { font-size: 12px; }
-  .vb-gender-pill { padding: 6px 8px; }
+  .vb-gender-row { flex-wrap: wrap; gap: 6px; }
+  .vb-gender-pill { min-width: 0; padding: 6px 8px; }
   .vb-gender-num { font-size: 14px; }
   .vb-detail { font-size: 10px; }
 }
 
 @media (max-width: 480px) {
   .vb-card { padding: 12px 14px; }
+  .vb-card-header { flex-direction: column; gap: 4px; align-items: flex-start; }
   .vb-total { font-size: 22px; }
-  .vb-gender-row { gap: 6px; }
-  .vb-gender-pill { padding: 5px 7px; font-size: 11px; }
-  .vb-gender-num { font-size: 13px; }
+  .vb-gender-row { flex-direction: column; gap: 6px; }
+  .vb-gender-pill { padding: 6px 10px; font-size: 11px; }
+  .vb-gender-num { font-size: 15px; }
   .vb-progress-track { margin-bottom: 10px; }
 }
 
@@ -1420,6 +1422,10 @@ body {
   #statsSummarySection h3 { font-size: 14px !important; }
   #statsSummarySection > div > div > div:first-child { font-size: 20px !important; }
   #statsSummarySection > div > div > div:last-child { font-size: 10px !important; }
+
+  /* Verified persons table */
+  #vpTable { font-size: 12px; }
+  #vpTable th, #vpTable td { padding: 8px 6px; white-space: nowrap; }
 
   /* Designation table header layout */
   .designation-table .card-header { flex-direction: column; align-items: stretch; }
