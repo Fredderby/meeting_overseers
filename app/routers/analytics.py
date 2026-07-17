@@ -85,24 +85,33 @@ async def verified_persons_api(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
+    from datetime import timedelta
     today = date.today()
-    rows = db.query(Attendance).filter(
-        cast(Attendance.verification_date, Date) == today,
-        Attendance.status == "Verified",
-    ).order_by(Attendance.verification_time.desc()).all()
-    return [
-        {
-            "id": r.id,
-            "person_name": r.person_name,
-            "gender": r.gender or "",
-            "designation": r.designation or "",
-            "category": r.category or "",
-            "verification_time": r.verification_time.strftime("%Y-%m-%d %H:%M:%S") if r.verification_time else "",
-            "verified_by_name": r.verified_by_name or "",
-            "remarks": r.remarks or "",
-        }
-        for r in rows
-    ]
+    yesterday = today - timedelta(days=1)
+
+    def _fetch(d):
+        rows = db.query(Attendance).filter(
+            cast(Attendance.verification_date, Date) == d,
+            Attendance.status == "Verified",
+        ).order_by(Attendance.verification_time.desc()).all()
+        return [
+            {
+                "id": r.id,
+                "person_name": r.person_name,
+                "gender": r.gender or "",
+                "designation": r.designation or "",
+                "category": r.category or "",
+                "verification_time": r.verification_time.strftime("%Y-%m-%d %H:%M:%S") if r.verification_time else "",
+                "verified_by_name": r.verified_by_name or "",
+                "remarks": r.remarks or "",
+            }
+            for r in rows
+        ]
+
+    return {
+        "today": _fetch(today),
+        "yesterday": _fetch(yesterday),
+    }
 
 
 def _analytics_html(user):
@@ -261,11 +270,17 @@ def _analytics_html(user):
       </div>
 
       <div class="card" style="margin-top:16px">
-        <div class="card-header">
-          <h3>Verified Persons Today</h3>
-          <div style="display:flex;gap:8px;align-items:center">
-            <input type="text" id="vpSearch" class="desig-search" placeholder="Search..." onkeyup="filterVpTable(this.value)">
-            <button class="btn btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:12px;font-weight:600" onclick="downloadCsv()">Download CSV</button>
+        <div class="card-header" style="flex-direction:column;align-items:stretch">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+            <h3 style="margin:0">Verified Persons</h3>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="text" id="vpSearch" class="desig-search" placeholder="Search..." onkeyup="filterVpTable(this.value)">
+              <button class="btn btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:12px;font-weight:600" onclick="downloadCsv()">Download CSV</button>
+            </div>
+          </div>
+          <div class="tabs" style="margin-top:8px">
+            <button class="tab-btn active" onclick="switchVpTab('today',this)" id="vpTabToday">Today</button>
+            <button class="tab-btn" onclick="switchVpTab('yesterday',this)" id="vpTabYest">Yesterday</button>
           </div>
         </div>
         <div class="table-wrapper">
@@ -284,6 +299,9 @@ def _analytics_html(user):
             </thead>
             <tbody id="vpTableBody"><tr><td colspan="8" class="empty-row">Loading...</td></tr></tbody>
           </table>
+        </div>
+        <div style="padding:8px 16px;font-size:11px;color:var(--text-muted);border-top:1px solid var(--border)">
+          <span id="vpCount"></span>
         </div>
       </div>
 
@@ -413,9 +431,11 @@ async function loadData() {{
   }} catch(e) {{ console.error('weekly trend', e); }}
 
   try {{
-    const vpData = await fetch('/api/analytics/verified-persons').then(r => r.json());
-    window._vpData = vpData;
-    renderVpTable(vpData);
+    const vpRes = await fetch('/api/analytics/verified-persons').then(r => r.json());
+    window._vpToday = vpRes.today || [];
+    window._vpYest = vpRes.yesterday || [];
+    window._vpActiveTab = 'today';
+    renderVpTable(window._vpToday);
   }} catch(e) {{ console.error('verified persons', e); }}
 
   try {{
@@ -519,24 +539,36 @@ function filterDesigTable(val) {{
 }}
 
 function renderVpTable(data) {{
+  const countEl = document.getElementById('vpCount');
+  countEl.textContent = data.length + ' person(s) verified';
   if (!data || data.length === 0) {{
-    document.getElementById('vpTableBody').innerHTML = '<tr><td colspan="8" class="empty-row">No verified persons today</td></tr>';
+    document.getElementById('vpTableBody').innerHTML = '<tr><td colspan="8" class="empty-row">No verified persons</td></tr>';
     return;
   }}
   let html = '';
   data.forEach((p, i) => {{
+    const time = p.verification_time.split(' ')[1] || p.verification_time;
     html += `<tr class="vp-row" data-search="${{(p.person_name+' '+p.designation+' '+p.category+' '+p.gender).toLowerCase()}}">
       <td>${{i+1}}</td>
       <td>${{p.person_name}}</td>
       <td>${{p.gender}}</td>
       <td>${{p.designation}}</td>
       <td>${{p.category}}</td>
-      <td>${{p.verification_time.split(' ')[1] || p.verification_time}}</td>
+      <td>${{time}}</td>
       <td>${{p.verified_by_name}}</td>
       <td>${{p.remarks || '-'}}</td>
     </tr>`;
   }});
   document.getElementById('vpTableBody').innerHTML = html;
+}}
+
+function switchVpTab(tab, btn) {{
+  window._vpActiveTab = tab;
+  document.querySelectorAll('#vpTabToday,#vpTabYest').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('vpSearch').value = '';
+  const data = tab === 'today' ? window._vpToday : window._vpYest;
+  renderVpTable(data);
 }}
 
 function filterVpTable(val) {{
@@ -546,8 +578,9 @@ function filterVpTable(val) {{
 }}
 
 function downloadCsv() {{
-  const data = window._vpData || [];
-  if (!data.length) {{ alert('No data to download'); return; }}
+  const data = window._vpActiveTab === 'today' ? window._vpToday : window._vpYest;
+  const label = window._vpActiveTab === 'today' ? 'Today' : 'Yesterday';
+  if (!data || !data.length) {{ alert('No data to download'); return; }}
   const headers = ['#','Name','Gender','Designation','Category','Time','Verified By','Remarks'];
   const rows = data.map((p,i) => [
     i+1, p.person_name, p.gender, p.designation, p.category,
@@ -561,7 +594,7 @@ function downloadCsv() {{
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'verified_persons_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.download = 'verified_' + label.toLowerCase() + '_' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
   URL.revokeObjectURL(url);
 }}
