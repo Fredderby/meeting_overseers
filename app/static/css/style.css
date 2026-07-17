@@ -1271,6 +1271,25 @@ body {
   .desig-search { width: 100%; }
   .designation-table { font-size: 12px; }
   .designation-table th, .designation-table td { padding: 8px; white-space: nowrap; }
+
+  /* Verified breakdown cards */
+  #verifiedBreakdownSection > div { grid-template-columns: 1fr !important; gap: 10px !important; }
+  #verifiedBreakdownSection .stat-card { padding: 16px !important; }
+  #verifiedBreakdownSection h3 { font-size: 14px !important; }
+
+  /* Stats summary */
+  #statsSummarySection > div { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+  #statsSummarySection .stat-card { font-size: 20px !important; }
+  #statsSummarySection h3 { font-size: 14px !important; }
+  #statsSummarySection > div > div > div:first-child { font-size: 20px !important; }
+  #statsSummarySection > div > div > div:last-child { font-size: 10px !important; }
+
+  /* Donut charts smaller on mobile */
+  .chart-card .card-body.donut-container canvas { max-height: 160px; max-width: 160px; }
+  .charts-grid .card canvas { max-height: 200px; }
+
+  /* Designation table header layout */
+  .designation-table .card-header { flex-direction: column; align-items: stretch; }
 }
 
 @media (max-width: 480px) {
@@ -1278,4 +1297,16 @@ body {
   .desig-kpi-num { font-size: 18px; }
   .designation-table { font-size: 11px; }
   .designation-table th, .designation-table td { padding: 6px; }
+
+  /* Verified breakdown - tighter on small screens */
+  #verifiedBreakdownSection .stat-card span[style*="font-size:28px"] { font-size: 22px !important; }
+  #verifiedBreakdownSection .stat-card div[style*="font-size:18px"] { font-size: 16px !important; }
+
+  /* Stats summary - smaller text */
+  #statsSummarySection > div { grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; }
+  #statsSummarySection > div > div { padding: 8px !important; }
+  #statsSummarySection > div > div > div:first-child { font-size: 18px !important; }
+
+  /* Donut even smaller */
+  .chart-card .card-body.donut-container canvas { max-height: 130px; max-width: 130px; }
 }
