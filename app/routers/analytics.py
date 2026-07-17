@@ -113,31 +113,71 @@ def _analytics_html(user):
         <div class="stat-card stat-cyan"><div class="stat-icon"><svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg></div><div class="stat-info"><h3 id="desigCount">...</h3><p>Designations</p></div></div>
       </div>
 
-      <div id="verifiedBreakdownSection" class="stat-card" style="padding:20px;margin-bottom:16px">
-        <h3 style="margin:0 0 16px 0;font-size:16px">Attendance Breakdown</h3>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
-          <div id="vbOverall" style="text-align:center;padding:12px;background:var(--bg-secondary);border-radius:8px">
-            <div style="font-size:32px;font-weight:700;color:var(--accent)" id="vbOverallRate">--</div>
-            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">Overall Attendance Rate</div>
-            <div style="font-size:11px;color:var(--text-muted)" id="vbOverallDetail"></div>
+      <div id="verifiedBreakdownSection" style="margin-bottom:16px">
+        <h3 style="margin:0 0 12px 0;font-size:16px">Verified Attendance Overview</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+
+          <div class="stat-card" style="padding:20px;border-left:4px solid #f59e0b">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <h4 style="margin:0;font-size:14px;color:var(--text-secondary)">Yesterday</h4>
+              <span style="font-size:28px;font-weight:700;color:#f59e0b" id="vbYestTotal">--</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+              <div style="padding:8px;background:var(--bg-secondary);border-radius:6px">
+                <div style="font-size:18px;font-weight:700;color:#3b82f6" id="vbYestMen">--</div>
+                <div style="color:var(--text-secondary)">Men (<span id="vbYestMenRate">--</span>%)</div>
+              </div>
+              <div style="padding:8px;background:var(--bg-secondary);border-radius:6px">
+                <div style="font-size:18px;font-weight:700;color:#ec4899" id="vbYestWomen">--</div>
+                <div style="color:var(--text-secondary)">Women (<span id="vbYestWomenRate">--</span>%)</div>
+              </div>
+            </div>
+            <div style="margin-top:8px;font-size:11px;color:var(--text-muted)" id="vbYestDetail"></div>
           </div>
-          <div id="vbMen" style="text-align:center;padding:12px;background:var(--bg-secondary);border-radius:8px">
-            <div style="font-size:32px;font-weight:700;color:#3b82f6" id="vbMenRate">--</div>
-            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">Men Attendance Rate</div>
-            <div style="font-size:11px;color:var(--text-muted)" id="vbMenDetail"></div>
+
+          <div class="stat-card" style="padding:20px;border-left:4px solid #10b981">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <h4 style="margin:0;font-size:14px;color:var(--text-secondary)">Today</h4>
+              <span style="font-size:28px;font-weight:700;color:#10b981" id="vbTodayTotal">--</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+              <div style="padding:8px;background:var(--bg-secondary);border-radius:6px">
+                <div style="font-size:18px;font-weight:700;color:#3b82f6" id="vbTodayMen">--</div>
+                <div style="color:var(--text-secondary)">Men (<span id="vbTodayMenRate">--</span>%)</div>
+              </div>
+              <div style="padding:8px;background:var(--bg-secondary);border-radius:6px">
+                <div style="font-size:18px;font-weight:700;color:#ec4899" id="vbTodayWomen">--</div>
+                <div style="color:var(--text-secondary)">Women (<span id="vbTodayWomenRate">--</span>%)</div>
+              </div>
+            </div>
+            <div style="margin-top:8px;font-size:11px;color:var(--text-muted)" id="vbTodayDetail"></div>
           </div>
-          <div id="vbWomen" style="text-align:center;padding:12px;background:var(--bg-secondary);border-radius:8px">
-            <div style="font-size:32px;font-weight:700;color:#ec4899" id="vbWomenRate">--</div>
-            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px">Women Attendance Rate</div>
-            <div style="font-size:11px;color:var(--text-muted)" id="vbWomenDetail"></div>
+
+          <div class="stat-card" style="padding:20px;border-left:4px solid #8b5cf6">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <h4 style="margin:0;font-size:14px;color:var(--text-secondary)">All Time</h4>
+              <span style="font-size:28px;font-weight:700;color:#8b5cf6" id="vbAllTotal">--</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+              <div style="padding:8px;background:var(--bg-secondary);border-radius:6px">
+                <div style="font-size:18px;font-weight:700;color:#3b82f6" id="vbAllMen">--</div>
+                <div style="color:var(--text-secondary)">Men</div>
+              </div>
+              <div style="padding:8px;background:var(--bg-secondary);border-radius:6px">
+                <div style="font-size:18px;font-weight:700;color:#ec4899" id="vbAllWomen">--</div>
+                <div style="color:var(--text-secondary)">Women</div>
+              </div>
+            </div>
+            <div style="margin-top:8px;font-size:11px;color:var(--text-muted)" id="vbAllDetail"></div>
           </div>
+
         </div>
       </div>
 
-      <div class="charts-grid">
-        <div class="card"><div class="card-header"><h3>Verified by Gender (Today)</h3></div><div class="card-body"><canvas id="genderChart"></canvas></div></div>
-        <div class="card"><div class="card-header"><h3>Verified by Category (Today)</h3></div><div class="card-body"><canvas id="categoryChart"></canvas></div></div>
-      </div>
+        <div class="charts-grid">
+          <div class="card"><div class="card-header"><h3>Verified by Gender (Today)</h3></div><div class="card-body donut-container"><canvas id="genderChart"></canvas></div></div>
+          <div class="card"><div class="card-header"><h3>Verified by Category (Today)</h3></div><div class="card-body donut-container"><canvas id="categoryChart"></canvas></div></div>
+        </div>
 
       <div id="statsSummarySection" class="stat-card" style="padding:20px;margin:16px 0">
         <h3 style="margin:0 0 16px 0;font-size:16px">Statistical Summary</h3>
@@ -228,16 +268,32 @@ async function loadData() {{
 
   try {{
     const vb = await fetch('/api/analytics/verified-breakdown').then(r => r.json());
-    document.getElementById('vbOverallRate').textContent = vb.overall_attendance_rate + '%';
-    document.getElementById('vbOverallDetail').textContent = vb.today_total + ' of ' + vb.total_active + ' verified';
-    document.getElementById('vbMenRate').textContent = vb.men_attendance_rate + '%';
-    document.getElementById('vbMenDetail').textContent = vb.today_men_verified + ' of ' + vb.total_men + ' verified';
-    document.getElementById('vbWomenRate').textContent = vb.women_attendance_rate + '%';
-    document.getElementById('vbWomenDetail').textContent = vb.today_women_verified + ' of ' + vb.total_women + ' verified';
+    const y = vb.yesterday;
+    const t = vb.today;
+    const a = vb.alltime;
+
+    document.getElementById('vbYestTotal').textContent = y.total;
+    document.getElementById('vbYestMen').textContent = y.men;
+    document.getElementById('vbYestWomen').textContent = y.women;
+    document.getElementById('vbYestMenRate').textContent = y.men_rate;
+    document.getElementById('vbYestWomenRate').textContent = y.women_rate;
+    document.getElementById('vbYestDetail').textContent = y.rate + '% of ' + vb.total_active + ' active people';
+
+    document.getElementById('vbTodayTotal').textContent = t.total;
+    document.getElementById('vbTodayMen').textContent = t.men;
+    document.getElementById('vbTodayWomen').textContent = t.women;
+    document.getElementById('vbTodayMenRate').textContent = t.men_rate;
+    document.getElementById('vbTodayWomenRate').textContent = t.women_rate;
+    document.getElementById('vbTodayDetail').textContent = t.rate + '% of ' + vb.total_active + ' active people';
+
+    document.getElementById('vbAllTotal').textContent = a.total;
+    document.getElementById('vbAllMen').textContent = a.men;
+    document.getElementById('vbAllWomen').textContent = a.women;
+    document.getElementById('vbAllDetail').textContent = a.total + ' total verifications recorded';
 
     const gCtx = document.getElementById('genderChart').getContext('2d');
-    const gLabels = Object.keys(vb.today_by_gender);
-    const gValues = Object.values(vb.today_by_gender);
+    const gLabels = Object.keys(t.by_gender);
+    const gValues = Object.values(t.by_gender);
     const gColors = gLabels.map(l => l === 'Male' ? '#3b82f6' : l === 'Female' ? '#ec4899' : '#94a3b8');
     new Chart(gCtx, {{
       type: 'doughnut',
@@ -246,8 +302,8 @@ async function loadData() {{
     }});
 
     const cCtx = document.getElementById('categoryChart').getContext('2d');
-    const cLabels = Object.keys(vb.today_by_category);
-    const cValues = Object.values(vb.today_by_category);
+    const cLabels = Object.keys(t.by_category);
+    const cValues = Object.values(t.by_category);
     const cColors = ['#3b82f6','#ec4899','#f59e0b','#10b981'];
     new Chart(cCtx, {{
       type: 'pie',

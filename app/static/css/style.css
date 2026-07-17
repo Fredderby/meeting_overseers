@@ -836,6 +836,11 @@ body {
   max-height: 280px;
 }
 
+.chart-card .card-body.donut-container canvas {
+  max-height: 220px;
+  max-width: 220px;
+}
+
 /* Stats */
 .stats-grid {
   display: grid;

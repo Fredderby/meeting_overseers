@@ -224,70 +224,89 @@ def get_designation_analytics(db: Session) -> dict:
 
 def get_verified_breakdown(db: Session) -> dict:
     today = date.today()
-    weekly_start = today - timedelta(days=today.weekday())
+    yesterday = today - timedelta(days=1)
 
     total_active = db.query(func.count(Person.id)).filter(Person.is_active == True).scalar() or 0
     total_men = db.query(func.count(Person.id)).filter(Person.is_active == True, Person.category == "Men").scalar() or 0
     total_women = db.query(func.count(Person.id)).filter(Person.is_active == True, Person.category == "Women").scalar() or 0
     total_stakeholders = db.query(func.count(Person.id)).filter(Person.is_active == True, Person.category == "Stakeholders").scalar() or 0
 
-    today_by_gender = db.query(
+    alltime_total = db.query(func.count(Attendance.id)).filter(Attendance.status == "Verified").scalar() or 0
+    alltime_gender = {r[0] or "Unspecified": r[1] for r in db.query(
         Attendance.gender, func.count(Attendance.id)
-    ).filter(
-        cast(Attendance.verification_date, Date) == today,
-        Attendance.status == "Verified",
-    ).group_by(Attendance.gender).all()
-    today_gender = {r[0] or "Unspecified": r[1] for r in today_by_gender}
-
-    today_by_cat = db.query(
+    ).filter(Attendance.status == "Verified").group_by(Attendance.gender).all()}
+    alltime_cat = {r[0] or "Uncategorized": r[1] for r in db.query(
         Attendance.category, func.count(Attendance.id)
-    ).filter(
-        cast(Attendance.verification_date, Date) == today,
-        Attendance.status == "Verified",
-    ).group_by(Attendance.category).all()
-    today_cat = {r[0] or "Uncategorized": r[1] for r in today_by_cat}
+    ).filter(Attendance.status == "Verified").group_by(Attendance.category).all()}
 
-    week_by_gender = db.query(
+    today_total = db.query(func.count(Attendance.id)).filter(
+        cast(Attendance.verification_date, Date) == today, Attendance.status == "Verified"
+    ).scalar() or 0
+    today_gender = {r[0] or "Unspecified": r[1] for r in db.query(
         Attendance.gender, func.count(Attendance.id)
-    ).filter(
-        cast(Attendance.verification_date, Date) >= weekly_start,
-        Attendance.status == "Verified",
-    ).group_by(Attendance.gender).all()
-    week_gender = {r[0] or "Unspecified": r[1] for r in week_by_gender}
-
-    week_by_cat = db.query(
+    ).filter(cast(Attendance.verification_date, Date) == today, Attendance.status == "Verified").group_by(Attendance.gender).all()}
+    today_cat = {r[0] or "Uncategorized": r[1] for r in db.query(
         Attendance.category, func.count(Attendance.id)
-    ).filter(
-        cast(Attendance.verification_date, Date) >= weekly_start,
-        Attendance.status == "Verified",
-    ).group_by(Attendance.category).all()
-    week_cat = {r[0] or "Uncategorized": r[1] for r in week_by_cat}
+    ).filter(cast(Attendance.verification_date, Date) == today, Attendance.status == "Verified").group_by(Attendance.category).all()}
 
-    today_men_verified = today_cat.get("Men", 0)
-    today_women_verified = today_cat.get("Women", 0)
-    today_total = sum(today_gender.values())
+    yesterday_total = db.query(func.count(Attendance.id)).filter(
+        cast(Attendance.verification_date, Date) == yesterday, Attendance.status == "Verified"
+    ).scalar() or 0
+    yesterday_gender = {r[0] or "Unspecified": r[1] for r in db.query(
+        Attendance.gender, func.count(Attendance.id)
+    ).filter(cast(Attendance.verification_date, Date) == yesterday, Attendance.status == "Verified").group_by(Attendance.gender).all()}
+    yesterday_cat = {r[0] or "Uncategorized": r[1] for r in db.query(
+        Attendance.category, func.count(Attendance.id)
+    ).filter(cast(Attendance.verification_date, Date) == yesterday, Attendance.status == "Verified").group_by(Attendance.category).all()}
 
-    men_attendance_rate = round(today_men_verified / total_men * 100, 1) if total_men > 0 else 0
-    women_attendance_rate = round(today_women_verified / total_women * 100, 1) if total_women > 0 else 0
-    overall_attendance_rate = round(today_total / total_active * 100, 1) if total_active > 0 else 0
+    today_men = today_cat.get("Men", 0)
+    today_women = today_cat.get("Women", 0)
+    yesterday_men = yesterday_cat.get("Men", 0)
+    yesterday_women = yesterday_cat.get("Women", 0)
+    alltime_men = alltime_cat.get("Men", 0)
+    alltime_women = alltime_cat.get("Women", 0)
+
+    today_rate = round(today_total / total_active * 100, 1) if total_active > 0 else 0
+    yesterday_rate = round(yesterday_total / total_active * 100, 1) if total_active > 0 else 0
+    alltime_rate = round(alltime_total / total_active * 100, 1) if total_active > 0 else 0
+    today_men_rate = round(today_men / total_men * 100, 1) if total_men > 0 else 0
+    today_women_rate = round(today_women / total_women * 100, 1) if total_women > 0 else 0
+    yesterday_men_rate = round(yesterday_men / total_men * 100, 1) if total_men > 0 else 0
+    yesterday_women_rate = round(yesterday_women / total_women * 100, 1) if total_women > 0 else 0
 
     return {
         "total_active": total_active,
         "total_men": total_men,
         "total_women": total_women,
         "total_stakeholders": total_stakeholders,
-        "today_total": today_total,
-        "today_by_gender": today_gender,
-        "today_by_category": today_cat,
-        "week_by_gender": week_gender,
-        "week_by_category": week_cat,
-        "men_attendance_rate": men_attendance_rate,
-        "women_attendance_rate": women_attendance_rate,
-        "overall_attendance_rate": overall_attendance_rate,
-        "today_men_verified": today_men_verified,
-        "today_women_verified": today_women_verified,
-        "week_men_verified": week_cat.get("Men", 0),
-        "week_women_verified": week_cat.get("Women", 0),
+        "yesterday": {
+            "total": yesterday_total,
+            "rate": yesterday_rate,
+            "by_gender": yesterday_gender,
+            "by_category": yesterday_cat,
+            "men": yesterday_men,
+            "women": yesterday_women,
+            "men_rate": yesterday_men_rate,
+            "women_rate": yesterday_women_rate,
+        },
+        "today": {
+            "total": today_total,
+            "rate": today_rate,
+            "by_gender": today_gender,
+            "by_category": today_cat,
+            "men": today_men,
+            "women": today_women,
+            "men_rate": today_men_rate,
+            "women_rate": today_women_rate,
+        },
+        "alltime": {
+            "total": alltime_total,
+            "rate": alltime_rate,
+            "by_gender": alltime_gender,
+            "by_category": alltime_cat,
+            "men": alltime_men,
+            "women": alltime_women,
+        },
     }
 
 
