@@ -113,62 +113,81 @@ def _analytics_html(user):
         <div class="stat-card stat-cyan"><div class="stat-icon"><svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg></div><div class="stat-info"><h3 id="desigCount">...</h3><p>Designations</p></div></div>
       </div>
 
-      <div id="verifiedBreakdownSection" style="margin-bottom:16px">
-        <h3 style="margin:0 0 12px 0;font-size:16px">Verified Attendance Overview</h3>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+      <div class="vb-section" id="verifiedBreakdownSection">
+        <h3 class="vb-title">Verified Attendance Overview</h3>
+        <div class="vb-grid">
 
-          <div class="stat-card" style="padding:20px;border-left:4px solid #f59e0b">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-              <h4 style="margin:0;font-size:14px;color:var(--text-secondary)">Yesterday</h4>
-              <span style="font-size:28px;font-weight:700;color:#f59e0b" id="vbYestTotal">--</span>
+          <div class="vb-card vb-card--yesterday">
+            <div class="vb-card-header">
+              <span class="vb-label">Yesterday</span>
+              <span class="vb-total vb-total--amber" id="vbYestTotal">--</span>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
-              <div style="padding:8px;background:var(--bg-secondary);border-radius:6px">
-                <div style="font-size:18px;font-weight:700;color:#3b82f6" id="vbYestMen">--</div>
-                <div style="color:var(--text-secondary)">Men (<span id="vbYestMenRate">--</span>%)</div>
+            <div class="vb-progress-track">
+              <div class="vb-progress-fill" id="vbYestBar" style="width:0%;background:#f59e0b"></div>
+            </div>
+            <div class="vb-gender-row">
+              <div class="vb-gender-pill">
+                <span class="vb-dot" style="background:#3b82f6"></span>
+                <span class="vb-gender-num" id="vbYestMen">--</span>
+                <span class="vb-gender-label">Men</span>
+                <span class="vb-gender-rate" id="vbYestMenRate">--</span>
               </div>
-              <div style="padding:8px;background:var(--bg-secondary);border-radius:6px">
-                <div style="font-size:18px;font-weight:700;color:#ec4899" id="vbYestWomen">--</div>
-                <div style="color:var(--text-secondary)">Women (<span id="vbYestWomenRate">--</span>%)</div>
+              <div class="vb-gender-pill">
+                <span class="vb-dot" style="background:#ec4899"></span>
+                <span class="vb-gender-num" id="vbYestWomen">--</span>
+                <span class="vb-gender-label">Women</span>
+                <span class="vb-gender-rate" id="vbYestWomenRate">--</span>
               </div>
             </div>
-            <div style="margin-top:8px;font-size:11px;color:var(--text-muted)" id="vbYestDetail"></div>
+            <div class="vb-detail" id="vbYestDetail"></div>
           </div>
 
-          <div class="stat-card" style="padding:20px;border-left:4px solid #10b981">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-              <h4 style="margin:0;font-size:14px;color:var(--text-secondary)">Today</h4>
-              <span style="font-size:28px;font-weight:700;color:#10b981" id="vbTodayTotal">--</span>
+          <div class="vb-card vb-card--today">
+            <div class="vb-card-header">
+              <span class="vb-label">Today</span>
+              <span class="vb-total vb-total--green" id="vbTodayTotal">--</span>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
-              <div style="padding:8px;background:var(--bg-secondary);border-radius:6px">
-                <div style="font-size:18px;font-weight:700;color:#3b82f6" id="vbTodayMen">--</div>
-                <div style="color:var(--text-secondary)">Men (<span id="vbTodayMenRate">--</span>%)</div>
+            <div class="vb-progress-track">
+              <div class="vb-progress-fill" id="vbTodayBar" style="width:0%;background:#10b981"></div>
+            </div>
+            <div class="vb-gender-row">
+              <div class="vb-gender-pill">
+                <span class="vb-dot" style="background:#3b82f6"></span>
+                <span class="vb-gender-num" id="vbTodayMen">--</span>
+                <span class="vb-gender-label">Men</span>
+                <span class="vb-gender-rate" id="vbTodayMenRate">--</span>
               </div>
-              <div style="padding:8px;background:var(--bg-secondary);border-radius:6px">
-                <div style="font-size:18px;font-weight:700;color:#ec4899" id="vbTodayWomen">--</div>
-                <div style="color:var(--text-secondary)">Women (<span id="vbTodayWomenRate">--</span>%)</div>
+              <div class="vb-gender-pill">
+                <span class="vb-dot" style="background:#ec4899"></span>
+                <span class="vb-gender-num" id="vbTodayWomen">--</span>
+                <span class="vb-gender-label">Women</span>
+                <span class="vb-gender-rate" id="vbTodayWomenRate">--</span>
               </div>
             </div>
-            <div style="margin-top:8px;font-size:11px;color:var(--text-muted)" id="vbTodayDetail"></div>
+            <div class="vb-detail" id="vbTodayDetail"></div>
           </div>
 
-          <div class="stat-card" style="padding:20px;border-left:4px solid #8b5cf6">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-              <h4 style="margin:0;font-size:14px;color:var(--text-secondary)">All Time</h4>
-              <span style="font-size:28px;font-weight:700;color:#8b5cf6" id="vbAllTotal">--</span>
+          <div class="vb-card vb-card--alltime">
+            <div class="vb-card-header">
+              <span class="vb-label">All Time</span>
+              <span class="vb-total vb-total--purple" id="vbAllTotal">--</span>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
-              <div style="padding:8px;background:var(--bg-secondary);border-radius:6px">
-                <div style="font-size:18px;font-weight:700;color:#3b82f6" id="vbAllMen">--</div>
-                <div style="color:var(--text-secondary)">Men</div>
+            <div class="vb-progress-track">
+              <div class="vb-progress-fill" id="vbAllBar" style="width:0%;background:#8b5cf6"></div>
+            </div>
+            <div class="vb-gender-row">
+              <div class="vb-gender-pill">
+                <span class="vb-dot" style="background:#3b82f6"></span>
+                <span class="vb-gender-num" id="vbAllMen">--</span>
+                <span class="vb-gender-label">Men</span>
               </div>
-              <div style="padding:8px;background:var(--bg-secondary);border-radius:6px">
-                <div style="font-size:18px;font-weight:700;color:#ec4899" id="vbAllWomen">--</div>
-                <div style="color:var(--text-secondary)">Women</div>
+              <div class="vb-gender-pill">
+                <span class="vb-dot" style="background:#ec4899"></span>
+                <span class="vb-gender-num" id="vbAllWomen">--</span>
+                <span class="vb-gender-label">Women</span>
               </div>
             </div>
-            <div style="margin-top:8px;font-size:11px;color:var(--text-muted)" id="vbAllDetail"></div>
+            <div class="vb-detail" id="vbAllDetail"></div>
           </div>
 
         </div>
@@ -275,21 +294,24 @@ async function loadData() {{
     document.getElementById('vbYestTotal').textContent = y.total;
     document.getElementById('vbYestMen').textContent = y.men;
     document.getElementById('vbYestWomen').textContent = y.women;
-    document.getElementById('vbYestMenRate').textContent = y.men_rate;
-    document.getElementById('vbYestWomenRate').textContent = y.women_rate;
-    document.getElementById('vbYestDetail').textContent = y.rate + '% of ' + vb.total_active + ' active people';
+    document.getElementById('vbYestMenRate').textContent = y.men_rate + '%';
+    document.getElementById('vbYestWomenRate').textContent = y.women_rate + '%';
+    document.getElementById('vbYestDetail').textContent = y.rate + '% attendance rate out of ' + vb.total_active + ' active people';
+    document.getElementById('vbYestBar').style.width = Math.min(y.rate, 100) + '%';
 
     document.getElementById('vbTodayTotal').textContent = t.total;
     document.getElementById('vbTodayMen').textContent = t.men;
     document.getElementById('vbTodayWomen').textContent = t.women;
-    document.getElementById('vbTodayMenRate').textContent = t.men_rate;
-    document.getElementById('vbTodayWomenRate').textContent = t.women_rate;
-    document.getElementById('vbTodayDetail').textContent = t.rate + '% of ' + vb.total_active + ' active people';
+    document.getElementById('vbTodayMenRate').textContent = t.men_rate + '%';
+    document.getElementById('vbTodayWomenRate').textContent = t.women_rate + '%';
+    document.getElementById('vbTodayDetail').textContent = t.rate + '% attendance rate out of ' + vb.total_active + ' active people';
+    document.getElementById('vbTodayBar').style.width = Math.min(t.rate, 100) + '%';
 
     document.getElementById('vbAllTotal').textContent = a.total;
     document.getElementById('vbAllMen').textContent = a.men;
     document.getElementById('vbAllWomen').textContent = a.women;
     document.getElementById('vbAllDetail').textContent = a.total + ' total verifications recorded';
+    document.getElementById('vbAllBar').style.width = Math.min(a.rate, 100) + '%';
 
     const gCtx = document.getElementById('genderChart').getContext('2d');
     const gLabels = Object.keys(t.by_gender);
